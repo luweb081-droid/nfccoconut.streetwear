@@ -11,6 +11,99 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="static/css/style.css">
   <link rel="icon" type="image/x-icon" href="static/images/ico.png">
+
+  <style>
+    /* ===== LOOKBOOK : 2 articles alignés + images sur les côtés ===== */
+    /* Pour changer les images : remplace uniquement les 4 URLs ci-dessous */
+    :root {
+      --lb-img-left: url("static/images/streetwearbis.png");
+      --lb-img-right: url("static/images/streetwearbis.png");
+      --lb-img-article-1: url("static/images/streetwearbis.png");
+      --lb-img-article-2: url("static/images/streetwearbis.png");
+      --strip-img-1: url("static/images/1.png");
+      --strip-img-2: url("static/images/2.png");
+      --strip-img-3: url("static/images/3.png");
+    }
+    /* ===== BANDE D'IMAGES avant le Drop ===== */
+    .image-strip {
+      max-width: 1400px;
+      margin: 50px auto 0;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      gap: 16px;
+      align-items: end;
+    }
+    .strip-img {
+      border-radius: 4px;
+      background-size: cover;
+      background-color: #222;
+    }
+    .strip-img--1 { aspect-ratio: 3 / 4; background-image: var(--strip-img-1); background-position: 15% center; }
+    .strip-img--2 { aspect-ratio: 4 / 5; background-image: var(--strip-img-2); background-position: 50% center; }
+    .strip-img--3 { aspect-ratio: 3 / 4; background-image: var(--strip-img-3); background-position: 85% center; }
+    @media (max-width: 700px) {
+      .image-strip { grid-template-columns: 1fr 1fr; }
+      .strip-img--2 { grid-column: 1 / -1; order: -1; aspect-ratio: 16 / 10; }
+    }
+    .lookbook { max-width: 1400px; margin: 70px auto; padding: 0 20px; }
+    .lookbook-grid {
+      display: grid;
+      grid-template-columns: 1fr 2.4fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .lb-side {
+      min-height: 480px;
+      border-radius: 4px;
+      background-size: cover;
+      background-color: #222;
+    }
+    .lb-side--left  { background-image: var(--lb-img-left);  background-position: left center; }
+    .lb-side--right { background-image: var(--lb-img-right); background-position: right center; }
+
+    .lb-articles {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .lb-divider { background: #d8d8d8; align-self: stretch; }
+    .lb-article { display: flex; flex-direction: column; gap: 14px; text-decoration: none; color: inherit; }
+    .lb-article-img {
+      aspect-ratio: 4 / 5;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      background-color: #222;
+      overflow: hidden;
+    }
+    .lb-article--1 .lb-article-img { background-image: var(--lb-img-article-1); background-position: 30% center; }
+    .lb-article--2 .lb-article-img { background-image: var(--lb-img-article-2); background-position: 75% center; }
+    .lb-article h3 { font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 500; margin: 0; }
+    .lb-article p { font-size: 0.85rem; line-height: 1.6; color: #666; margin: 0; }
+    .lb-article .lb-link {
+      align-self: flex-start;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 10px 22px;
+      border: 1px solid #111;
+      color: #111;
+      transition: background .2s, color .2s;
+    }
+    .lb-article:hover .lb-link, .lb-article:focus-visible .lb-link { background: #111; color: #fff; }
+    .lb-article:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
+
+    @media (max-width: 1000px) {
+      .lookbook-grid { grid-template-columns: 1fr; }
+      .lb-side { min-height: 240px; }
+      .lb-side--right { order: 3; }
+    }
+    @media (max-width: 600px) {
+      .lb-articles { grid-template-columns: 1fr; }
+      .lb-divider { display: none; }
+    }
+  </style>
 </head>
 <body>
 
@@ -48,6 +141,13 @@
     </div>
   </section>
 
+  <!-- BANDE D'IMAGES AVANT LE DROP -->
+  <section class="image-strip" aria-label="Ambiance Drop 00">
+    <div class="strip-img strip-img--1" role="img" aria-label="Look streetwear NFC Coconut"></div>
+    <div class="strip-img strip-img--2" role="img" aria-label="Collection Drop 00 en situation"></div>
+    <div class="strip-img strip-img--3" role="img" aria-label="Détail t-shirt oversized"></div>
+  </section>
+
   <main class="main-container" id="streetwear-drop">
     <div class="section-headline">
       <h2>Collection Drop 00 — The beginning</h2>
@@ -55,6 +155,38 @@
     </div>
     <div class="products-grid" aria-label="Produits Streetwear"></div>
   </main>
+
+  <!-- SECTION LOOKBOOK : 2 articles alignés + images autour -->
+  <section class="lookbook" aria-label="Lookbook Drop 00">
+    <div class="section-headline">
+      <h2>Les pièces du Drop</h2>
+      <p>T-shirts oversized et affiches, en série limitée</p>
+    </div>
+
+    <div class="lookbook-grid" style="margin-top: 30px;">
+      <div class="lb-side lb-side--left" role="img" aria-label="Ambiance streetwear NFC Coconut"></div>
+
+      <div class="lb-articles">
+        <a href="#streetwear-drop" class="lb-article lb-article--1">
+          <div class="lb-article-img" role="img" aria-label="T-shirt oversized NFC Coconut"></div>
+          <h3>T-shirt oversized</h3>
+          <p>Coton lourd, coupe ample, imprimé en France.</p>
+          <span class="lb-link">Voir le t-shirt</span>
+        </a>
+
+        <div class="lb-divider" aria-hidden="true"></div>
+
+        <a href="#streetwear-drop" class="lb-article lb-article--2">
+          <div class="lb-article-img" role="img" aria-label="Affiche édition limitée NFC Coconut"></div>
+          <h3>Affiche édition limitée</h3>
+          <p>Tirage numéroté, papier épais, format A2.</p>
+          <span class="lb-link">Voir l'affiche</span>
+        </a>
+      </div>
+
+      <div class="lb-side lb-side--right" role="img" aria-label="Détail textile NFC Coconut"></div>
+    </div>
+  </section>
 
   <!-- SECTION CONCEPT & TECH STREETWEAR -->
   <section class="streetwear-quality-section" style="max-width: 1100px; margin: 60px auto; padding: 50px 30px; background: #1b1b1b; color: #ffffff; border-radius: 12px; text-align: center;">
