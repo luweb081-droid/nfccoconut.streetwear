@@ -13,13 +13,13 @@
   <link rel="icon" type="image/x-icon" href="static/images/ico.png">
 
   <style>
-    /* ===== LOOKBOOK : 2 articles alignés + images sur les côtés ===== */
-    /* Pour changer les images : remplace uniquement les 4 URLs ci-dessous */
+    /* ===== LOOKBOOK : uniquement des photos de shooting ===== */
+    /* Pour changer les images : remplace uniquement les URLs ci-dessous */
     :root {
-      --lb-img-left: url("static/images/streetwearbis.png");
-      --lb-img-right: url("static/images/streetwearbis.png");
-      --lb-img-article-1: url("static/images/streetwearbis.png");
-      --lb-img-article-2: url("static/images/streetwearbis.png");
+      --lb-img-left: url("static/images/9.png");
+      --lb-img-right: url("static/images/7.png");
+      --lb-img-article-1: url("static/images/8.png");
+      --lb-img-article-2: url("static/images/9.png");
       --strip-img-1: url("static/images/1.png");
       --strip-img-2: url("static/images/4.png");
       --strip-img-3: url("static/images/3bis.png");
@@ -69,7 +69,6 @@
       align-items: start;
     }
     .lb-divider { background: #d8d8d8; align-self: stretch; }
-    .lb-article { display: flex; flex-direction: column; gap: 14px; text-decoration: none; color: inherit; }
     .lb-article-img {
       aspect-ratio: 4 / 5;
       border-radius: 4px;
@@ -78,21 +77,8 @@
       background-color: #222;
       overflow: hidden;
     }
-    .lb-article--1 .lb-article-img { background-image: var(--lb-img-article-1); background-position: 30% center; }
-    .lb-article--2 .lb-article-img { background-image: var(--lb-img-article-2); background-position: 75% center; }
-    .lb-article h3 { font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 500; margin: 0; }
-    .lb-article p { font-size: 0.85rem; line-height: 1.6; color: #666; margin: 0; }
-    .lb-article .lb-link {
-      align-self: flex-start;
-      font-size: 0.8rem;
-      font-weight: 500;
-      padding: 10px 22px;
-      border: 1px solid #111;
-      color: #111;
-      transition: background .2s, color .2s;
-    }
-    .lb-article:hover .lb-link, .lb-article:focus-visible .lb-link { background: #111; color: #fff; }
-    .lb-article:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
+    .lb-article--1 { background-image: var(--lb-img-article-1); background-position: 30% center; }
+    .lb-article--2 { background-image: var(--lb-img-article-2); background-position: 75% center; }
 
     @media (max-width: 1000px) {
       .lookbook-grid { grid-template-columns: 1fr; }
@@ -156,35 +142,25 @@
     <div class="products-grid" aria-label="Produits Streetwear"></div>
   </main>
 
-  <!-- SECTION LOOKBOOK : 2 articles alignés + images autour -->
+  <!-- SECTION LOOKBOOK : photos de shooting uniquement -->
   <section class="lookbook" aria-label="Lookbook Drop 00">
     <div class="section-headline">
       <h2>Les pièces du Drop</h2>
-      <p>T-shirts oversized et affiches, en série limitée</p>
+      <p>T-shirts oversized, en série limitée</p>
     </div>
 
     <div class="lookbook-grid" style="margin-top: 30px;">
-      <div class="lb-side lb-side--left" role="img" aria-label="Ambiance streetwear NFC Coconut"></div>
+      <div class="lb-side lb-side--left" role="img" aria-label="Shooting photo NFC Coconut"></div>
 
       <div class="lb-articles">
-        <a href="#streetwear-drop" class="lb-article lb-article--1">
-          <div class="lb-article-img" role="img" aria-label="T-shirt oversized NFC Coconut"></div>
-          <h3>T-shirt oversized</h3>
-          <p>Coton lourd, coupe ample, imprimé en France.</p>
-          <span class="lb-link">Voir le t-shirt</span>
-        </a>
+        <div class="lb-article-img lb-article--1" role="img" aria-label="Shooting photo T-shirt oversized NFC Coconut"></div>
 
         <div class="lb-divider" aria-hidden="true"></div>
 
-        <a href="#streetwear-drop" class="lb-article lb-article--2">
-          <div class="lb-article-img" role="img" aria-label="Affiche édition limitée NFC Coconut"></div>
-          <h3>Affiche édition limitée</h3>
-          <p>Tirage numéroté, papier épais, format A2.</p>
-          <span class="lb-link">Voir l'affiche</span>
-        </a>
+        <div class="lb-article-img lb-article--2" role="img" aria-label="Shooting photo streetwear NFC Coconut"></div>
       </div>
 
-      <div class="lb-side lb-side--right" role="img" aria-label="Détail textile NFC Coconut"></div>
+      <div class="lb-side lb-side--right" role="img" aria-label="Shooting photo détail NFC Coconut"></div>
     </div>
   </section>
 

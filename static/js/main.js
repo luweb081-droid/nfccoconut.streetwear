@@ -31,7 +31,7 @@ const PRODUCTS = [
     description: 'Coupe boxy streetwear avec un patch NFC discret intégré au bas du vêtement.',
     tags: ['t-shirt', 'oversized', 'streetwear', 'nfc', 'vêtement'],
     features: ['Coupe Oversized Boxy', 'Patch NFC lavable intégré', 'Imprimé localement en France'],
-    shopifyVariantId: "gid://shopify/ProductVariant/54297833242967"
+    shopifyVariantId: "gid://shopify/ProductVariant/55211592810839"
   },
   {
     id: 'tshirt-streetwear-3',
@@ -42,7 +42,7 @@ const PRODUCTS = [
     description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
     tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
     features: ['Coupe Oversized Boxy', '100% Coton lourd bio (300g/m²)', 'Série limitée exclusive'],
-    shopifyVariantId: "gid://shopify/ProductVariant/54297836552535"
+    shopifyVariantId: "gid://shopify/ProductVariant/55211623874903"
   },
   {
     id: 'tshirt-streetwear-4',
