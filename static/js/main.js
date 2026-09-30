@@ -788,6 +788,18 @@ function injectSizeStyles() {
     .size-btn.unavailable { border-color: #ccc; color: #aaa; text-decoration: line-through; cursor: not-allowed; }
     .size-btn:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
     a.btn-add-cart { display: inline-block; text-align: center; text-decoration: none; }
+
+    /* Grille de l'index : cartes étroites et hautes (≈4 par ligne sur ordinateur).
+       Largeur : change 320px. Hauteur : change 3 / 4.6 (plus le 2e chiffre est grand, plus c'est haut). */
+    .main-container { max-width: 1500px; }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 40px 28px; }
+    .products-grid .product-img-wrapper { position: relative; overflow: hidden; height: auto; aspect-ratio: 3 / 4.6; }
+    .products-grid .product-image { width: 100%; height: 100%; object-fit: cover; }
+    .products-grid .product-title { font-size: 1.05rem; }
+    .products-grid .product-price { font-size: 1.1rem; }
+    @media (max-width: 700px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 14px; }
+    }
   `;
   document.head.appendChild(style);
 }
