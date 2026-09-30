@@ -798,7 +798,7 @@ function injectSizeStyles() {
     .products-grid .product-title { font-size: 1.05rem; }
     .products-grid .product-price { font-size: 1.1rem; }
     @media (max-width: 700px) {
-      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 14px; }
+      .products-grid { grid-template-columns: 1fr; gap: 32px; }
     }
   `;
   document.head.appendChild(style);
