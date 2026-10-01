@@ -9,6 +9,9 @@
  *
  * Un produit à variante unique (ex. les affiches) n'affiche pas de sélecteur
  * de taille.
+ *
+ * Les affiches sont reconnues grâce au tag 'poster' : tout produit ayant ce
+ * tag est affiché dans la section « Affiches », les autres dans « Vêtements ».
  */
 const PRODUCTS = [
   {
@@ -103,8 +106,9 @@ const PRODUCTS = [
 
 const NAV_LINKS = [
   { label: 'Shop', href: 'index.html#streetwear-drop' },
+  { label: 'Affiches', href: 'index.html#affiches' },
   { label: 'About', href: 'index.html#about' },
-  { label: 'Size guide', href: 'index.html#faq' },
+  { label: 'Size guide', href: 'guide-des-tailles.html' },
   { label: 'Contact', href: 'https://www.instagram.com/nfc_coconut_official' },
   { label: 'Pour les PRO', href: 'https://nfccoconut.fr/b2b.html' }
 ];
@@ -118,6 +122,33 @@ const LOW_STOCK_PAGE = 5;
 const euro = value => `${value.toFixed(2).replace('.', ',')} €`;
 const escapeHtml = text => String(text).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 const productUrl = product => `produit.html?id=${encodeURIComponent(product.id)}`;
+
+// Une affiche = un produit qui porte le tag 'poster'.
+const isPoster = product => product.tags.includes('poster');
+
+// ================= GUIDE DES TAILLES =================
+// Mesures du vêtement posé à plat, en cm. [[Remplace par tes vraies mesures.]]
+// Source unique : utilisé sur la page guide-des-tailles.html et sur les fiches vêtements.
+const SIZE_CHART = [
+  { size: 'S',  width: 56, length: 70 },
+  { size: 'M',  width: 58, length: 72 },
+  { size: 'L',  width: 61, length: 74 },
+  { size: 'XL', width: 64, length: 76 }
+];
+
+const sizeTableHtml = () => `
+  <div class="size-table-wrap">
+    <table class="size-table">
+      <thead><tr><th>Taille</th><th>Largeur (cm)</th><th>Longueur (cm)</th></tr></thead>
+      <tbody>${SIZE_CHART.map(r => `<tr><td>${r.size}</td><td>${r.width}</td><td>${r.length}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <p class="size-note">Mesures du vêtement posé à plat, à ±2 cm.</p>`;
+
+function renderSizeGuide() {
+  const el = document.getElementById('sizeChart');
+  if (el) el.innerHTML = sizeTableHtml();
+}
 
 // ================= VARIANTES (TAILLES) =================
 // product.variants est rempli par Shopify : [{ id, title, available, qty, price, oldPrice }]
@@ -254,13 +285,17 @@ function renderFooter() {
         </div>
         <div class="footer-col"><h4>Shop</h4><ul>
           ${link('Collection', 'index.html#streetwear-drop')}
+          ${link('Affiches', 'index.html#affiches')}
           ${link('Drop 00', 'index.html#streetwear-drop')}
-          ${link('Guide des tailles', 'index.html#faq')}
+          ${link('Guide des tailles', 'guide-des-tailles.html')}
         </ul></div>
         <div class="footer-col"><h4>Information</h4><ul>
           ${link('Livraison', 'index.html#faq')}
-          ${link('Retours', 'index.html#faq')}
+          ${link('Retours', 'retours.html')}
           ${link('FAQ', 'index.html#faq')}
+          ${link('CGV', 'cgv.html')}
+          ${link('Mentions légales', 'mentions-legales.html')}
+          ${link('Confidentialité', 'confidentialite.html')}
           ${link('Contact', 'https://www.instagram.com/nfc_coconut_official', true)}
         </ul></div>
         <div class="footer-col"><h4>Follow</h4><ul>
@@ -272,10 +307,15 @@ function renderFooter() {
   });
 }
 
+// Deux grilles distinctes : vêtements (#grid-vetements) et affiches (#grid-affiches).
 function renderProductGrids() {
   if (currentFile() === 'produit.html') return;
-  const grid = document.querySelector('.products-grid');
-  if (grid) grid.innerHTML = PRODUCTS.map(productCard).join('');
+
+  const clothesGrid = document.getElementById('grid-vetements');
+  const postersGrid = document.getElementById('grid-affiches');
+
+  if (clothesGrid) clothesGrid.innerHTML = PRODUCTS.filter(p => !isPoster(p)).map(productCard).join('');
+  if (postersGrid) postersGrid.innerHTML = PRODUCTS.filter(isPoster).map(productCard).join('');
 }
 
 // ================= FICHE PRODUIT =================
@@ -368,11 +408,12 @@ function renderProductPage() {
       </div>
     </div>
     <div class="product-info">
-      <p class="product-category">Streetwear</p>
+      <p class="product-category">${isPoster(product) ? 'Affiche' : 'Streetwear'}</p>
       <h1>${escapeHtml(product.name)}</h1>
       <div id="priceStock"></div>
       <p class="product-description">${escapeHtml(product.description)}</p>
       <ul class="product-features">${featuresHtml}</ul>
+      ${isPoster(product) ? '' : `<details class="size-guide"><summary>Guide des tailles</summary>${sizeTableHtml()}</details>`}
       <div id="buyBox"></div>
     </div>
   </section>`;
@@ -865,6 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFooter();
   renderProductGrids();
   renderProductPage();
+  renderSizeGuide();
   setupSearch();
   setupCartAndDrawer();
   setupMobileMenu();
