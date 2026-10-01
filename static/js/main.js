@@ -56,6 +56,17 @@ const PRODUCTS = [
     shopifyVariantId: "gid://shopify/ProductVariant/54297837306199"
   },
   {
+    id: 'tshirt-streetwear-5',
+    name: 'T-shirt style Streetwear N°5',
+    price: 39.90,
+    oldPrice: 59.90,
+    images: ['static/images/tshirt4.png', 'static/images/tshirt4bis.png'],
+    description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
+    tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
+    features: ['Coupe Oversized Boxy', '100% Coton lourd bio (300g/m²)', 'Imprimé localement en France'],
+    shopifyVariantId: "gid://shopify/ProductVariant/55222204039511"
+  },
+  {
     id: 'poster-drop-00-N°1',
     name: 'Affiche — Drop 00 (Art Print)',
     price: 24.90,
