@@ -102,8 +102,10 @@ const PRODUCTS = [
 ];
 
 const NAV_LINKS = [
-  { label: 'Accueil', href: 'index.html' },
-  { label: 'Le Drop', href: 'index.html#streetwear-drop' },
+  { label: 'Shop', href: 'index.html#streetwear-drop' },
+  { label: 'About', href: 'index.html#about' },
+  { label: 'Size guide', href: 'index.html#faq' },
+  { label: 'Contact', href: 'https://www.instagram.com/nfc_coconut_official' },
   { label: 'Pour les PRO', href: 'https://nfccoconut.fr/b2b.html' }
 ];
 
@@ -231,12 +233,42 @@ function renderNavigation() {
           ${socialLink('https://www.instagram.com/nfc_coconut_official', 'Notre page Instagram', 'fa-brands fa-instagram')}
           ${socialLink('https://www.tiktok.com/@nfc_coconut_official?is_from_webapp=1&sender_device=pc', 'Notre page TikTok', 'fa-brands fa-tiktok')}
         </div>
-        <button id="cartBtn"><i class="fa-solid fa-bag-shopping"></i><span>(0)</span></button>
+        <button id="cartBtn"><i class="fa-solid fa-bag-shopping"></i><span class="bag-label">Bag</span><span class="cart-count">(0)</span></button>
       </div>`;
   });
 
   document.querySelectorAll('.mobile-nav').forEach(nav => {
     nav.innerHTML = `<ul>${NAV_LINKS.map(({ label, href }) => `<li><a href="${href}"${href === file ? ' class="active"' : ''}>${label}</a></li>`).join('')}</ul>`;
+  });
+}
+
+// ================= FOOTER =================
+function renderFooter() {
+  const link = (label, href, ext) => `<li><a href="${href}"${ext ? ' target="_blank" rel="noopener noreferrer"' : ''}>${label}</a></li>`;
+  document.querySelectorAll('.site-footer').forEach(f => {
+    f.innerHTML = `
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <h3>NFC COCONUT</h3>
+          <p>Born between digital culture and streetwear.</p>
+        </div>
+        <div class="footer-col"><h4>Shop</h4><ul>
+          ${link('Collection', 'index.html#streetwear-drop')}
+          ${link('Drop 00', 'index.html#streetwear-drop')}
+          ${link('Guide des tailles', 'index.html#faq')}
+        </ul></div>
+        <div class="footer-col"><h4>Information</h4><ul>
+          ${link('Livraison', 'index.html#faq')}
+          ${link('Retours', 'index.html#faq')}
+          ${link('FAQ', 'index.html#faq')}
+          ${link('Contact', 'https://www.instagram.com/nfc_coconut_official', true)}
+        </ul></div>
+        <div class="footer-col"><h4>Follow</h4><ul>
+          ${link('Instagram', 'https://www.instagram.com/nfc_coconut_official', true)}
+          ${link('TikTok', 'https://www.tiktok.com/@nfc_coconut_official', true)}
+        </ul></div>
+      </div>
+      <p class="footer-copy">&copy; 2026 NFC COCONUT</p>`;
   });
 }
 
@@ -406,7 +438,7 @@ function findVariant(variantId) {
 
 function updateCart() {
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-  document.querySelectorAll('#cartBtn span').forEach(el => { el.textContent = `(${count})`; });
+  document.querySelectorAll('#cartBtn .cart-count').forEach(el => { el.textContent = `(${count})`; });
 
   const container = document.querySelector('.cart-items-container');
   if (container) {
@@ -704,6 +736,8 @@ function setupMobileMenu() {
   document.addEventListener('click', event => {
     if (event.target.closest('#menuBtn')) open();
     if (event.target.closest('#closeMobileMenuBtn') || event.target === overlay) close();
+    // ferme le menu quand on clique sur un lien (ancres de la même page)
+    if (event.target.closest('#mobileMenuDrawer .mobile-nav a')) close();
   });
 }
 
@@ -753,6 +787,14 @@ function changeGalleryImage(newImage, direction = 1) {
 
     setTimeout(() => mainImage.classList.remove('gallery-slide-center'), 400);
   }, 200);
+}
+
+// ================= FAQ =================
+function setupFaq() {
+  document.addEventListener('click', event => {
+    const question = event.target.closest('.faq-question');
+    if (question) question.parentElement.classList.toggle('active');
+  });
 }
 
 // ================= COMPTE À REBOURS =================
@@ -820,12 +862,14 @@ function injectSizeStyles() {
 document.addEventListener('DOMContentLoaded', () => {
   injectSizeStyles();
   renderNavigation();
+  renderFooter();
   renderProductGrids();
   renderProductPage();
   setupSearch();
   setupCartAndDrawer();
   setupMobileMenu();
   setupGallery();
+  setupFaq();
   startLaunchCountdown();
   syncProductDataFromShopify();
 
