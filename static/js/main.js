@@ -92,7 +92,8 @@ const PRODUCTS = [
 
 const NAV_LINKS = [
   { label: 'Accueil', href: 'index.html' },
-  { label: 'Le Drop', href: 'index.html#streetwear-drop' }
+  { label: 'Le Drop', href: 'index.html#streetwear-drop' },
+  { label: 'Pour les PRO', href: 'https://nfccoconut.fr/b2b.html' }
 ];
 
 const LAUNCH_DATE = new Date('2026-10-11T00:00:00').getTime();
