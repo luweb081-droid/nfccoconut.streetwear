@@ -113,7 +113,7 @@ const NAV_LINKS = [
   { label: 'Pour les PRO', href: 'https://nfccoconut.fr/b2b.html' }
 ];
 
-const LAUNCH_DATE = new Date('2026-10-11T00:00:00').getTime();
+const LAUNCH_DATE = new Date('2026-12-01T00:00:00').getTime();
 const isLaunched = () => Date.now() >= LAUNCH_DATE;
 
 const LOW_STOCK_CARD = 10;
