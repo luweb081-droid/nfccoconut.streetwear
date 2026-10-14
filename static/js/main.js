@@ -129,7 +129,7 @@ const isLaunched = () => serverClock !== null && now() >= LAUNCH_DATE;
 // Avant le drop on le masque (le stock Shopify est à 0 pour verrouiller la vente).
 // Pour VÉRIFIER le rendu avant le drop : mets PREVIEW_STOCK à true, regarde, puis
 // remets false avant de mettre en ligne. Ça n'ouvre PAS la vente, seulement l'affichage.
-const PREVIEW_STOCK = false;
+const PREVIEW_STOCK = true;
 const showStock = () => PREVIEW_STOCK || isLaunched();
 
 async function syncServerTime() {
