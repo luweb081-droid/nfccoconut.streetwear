@@ -208,14 +208,10 @@ function stockLabel(variant) {
 }
 
 // ================= BOUTONS =================
-const lockedButton = () => `<button class="btn-add-cart btn-locked" type="button" disabled aria-label="Disponible au lancement du Drop">
-    <i class="fa-solid fa-lock"></i>
-    <span class="js-launch-timer">--j --h --m --s</span>
-  </button>`;
 
 // Bouton de la carte (grille) : la taille se choisit sur la fiche produit.
 function cardActionButton(product) {
-  if (!isLaunched()) return lockedButton();
+  if (!isLaunched()) return ''; // avant le drop : aucun bouton d'achat (le chrono est dans l'en-tête)
   if (isProductSoldOut(product)) return `<button class="btn-add-cart disabled" type="button" disabled>Épuisé</button>`;
 
   const variants = product.variants || [];
@@ -227,7 +223,7 @@ function cardActionButton(product) {
 
 // Bouton de la fiche produit : agit sur la taille sélectionnée.
 function pageActionButton(product) {
-  if (!isLaunched()) return lockedButton();
+  if (!isLaunched()) return ''; // avant le drop : aucun bouton d'achat (le chrono est dans l'en-tête)
 
   const variant = getSelectedVariant(product);
   if (!variant) return `<button class="btn-add-cart disabled" type="button" disabled>Chargement…</button>`;
