@@ -113,8 +113,32 @@ const NAV_LINKS = [
   { label: 'Pour les PRO', href: 'https://nfccoconut.fr/b2b.html' }
 ];
 
-const LAUNCH_DATE = new Date('2026-12-01T00:00:00').getTime();
-const isLaunched = () => Date.now() >= LAUNCH_DATE;
+// Ouverture : 1er décembre 2026 à 00h00, heure de Paris (CET = UTC+1 en décembre).
+// Le décalage est explicite : sinon l'heure dépendrait du fuseau du visiteur.
+const LAUNCH_DATE = new Date('2026-12-01T00:00:00+01:00').getTime();
+
+// ---- Heure de référence = celle du SERVEUR, pas celle du PC du visiteur ----
+// On lit l'en-tête HTTP "Date" de notre propre hébergeur, puis on avance avec
+// performance.now() (horloge monotone, insensible au changement d'heure du PC).
+// Tant que l'heure serveur est inconnue, le site reste VERROUILLÉ (fail closed).
+let serverClock = null; // { server: ms epoch serveur, mono: performance.now() au moment de la lecture }
+const now = () => serverClock ? serverClock.server + (performance.now() - serverClock.mono) : null;
+const isLaunched = () => serverClock !== null && now() >= LAUNCH_DATE;
+
+async function syncServerTime() {
+  try {
+    const t0 = performance.now();
+    const res = await fetch(`${location.pathname}?_t=${Date.now()}`, { method: 'HEAD', cache: 'no-store' });
+    const t1 = performance.now();
+    const serverTime = new Date(res.headers.get('Date') || '').getTime();
+    if (!Number.isFinite(serverTime)) return false;
+    // On compense la moitié du temps aller-retour.
+    serverClock = { server: serverTime + (t1 - t0) / 2, mono: t1 };
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
 
 const LOW_STOCK_CARD = 10;
 const LOW_STOCK_PAGE = 5;
@@ -155,7 +179,10 @@ function renderSizeGuide() {
 const selectedVariantByProduct = {};
 
 const hasSizes = product => (product.variants || []).length > 1;
-const isProductSoldOut = product => !!product.variants?.length && product.variants.every(v => !v.available);
+// Avant le lancement on masque tout ce qui parle de stock (Sold Out, Épuisé, tailles barrées) :
+// le stock Shopify peut être à 0 pour verrouiller la vente, ça ne doit pas se voir.
+const isProductSoldOut = product => isLaunched() && !!product.variants?.length && product.variants.every(v => !v.available);
+const variantShownAvailable = v => !isLaunched() || v.available;
 
 function getSelectedVariant(product) {
   const variants = product.variants || [];
@@ -166,7 +193,7 @@ function getSelectedVariant(product) {
 }
 
 function stockLabel(variant) {
-  if (!variant) return '';
+  if (!variant || !isLaunched()) return '';
   if (!variant.available) return 'Épuisé';
   if (typeof variant.qty === 'number' && variant.qty <= LOW_STOCK_PAGE) return `Plus que ${variant.qty} en stock`;
   return 'En stock';
@@ -204,7 +231,7 @@ function pageActionButton(product) {
 function productCard(product) {
   const discount = product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : null;
   const isSoldOut = isProductSoldOut(product);
-  const hasLowStock = !isSoldOut && Number.isInteger(product.stockQty) && product.stockQty <= LOW_STOCK_CARD;
+  const hasLowStock = isLaunched() && !isSoldOut && Number.isInteger(product.stockQty) && product.stockQty <= LOW_STOCK_CARD;
   const hasSecondImage = product.images.length > 1;
 
   return `
@@ -341,16 +368,35 @@ function renderBuyBox() {
     <div class="detail-price">${euro(price)}${oldPrice ? `<del>${euro(oldPrice)}</del>` : ''}</div>
     ${stock ? `<p class="stock-info${variant && (!variant.available || (typeof variant.qty === 'number' && variant.qty <= LOW_STOCK_PAGE)) ? ' low' : ''}">${stock}</p>` : ''}`;
 
+  // Stock de chaque taille, juste au-dessus des boutons (visible seulement après le lancement).
+  const stockBySizeHtml = hasSizes(product) && isLaunched() ? `
+    <ul class="size-stock" aria-label="Stock par taille">
+      ${product.variants.map(v => {
+        const out = !v.available;
+        const low = !out && typeof v.qty === 'number' && v.qty <= LOW_STOCK_PAGE;
+        const label = out ? 'Épuisé' : (typeof v.qty === 'number' ? v.qty : 'En stock');
+        return `<li class="${out ? 'out' : low ? 'low' : ''}"><span class="size-stock-size">${escapeHtml(v.title)}</span><span class="size-stock-qty">${label}</span></li>`;
+      }).join('')}
+    </ul>` : '';
+
+  // Le guide des tailles est redessiné à chaque changement de taille : on garde son état ouvert/fermé.
+  const guideWasOpen = !!buyBox.querySelector('.size-guide[open]');
+  const guideHtml = isPoster(product) ? '' : `
+    <details class="size-guide"${guideWasOpen ? ' open' : ''}>
+      <summary>Guide des tailles</summary>
+      ${sizeTableHtml()}
+    </details>`;
+
   const sizesHtml = hasSizes(product) ? `
     <div class="size-selector" role="radiogroup" aria-label="Taille">
       ${product.variants.map(v => `
-        <button type="button" class="size-btn${variant && v.id === variant.id ? ' active' : ''}${v.available ? '' : ' unavailable'}"
-                data-size="${v.id}" role="radio" aria-checked="${variant && v.id === variant.id}" ${v.available ? '' : 'disabled'}>
+        <button type="button" class="size-btn${variant && v.id === variant.id ? ' active' : ''}${variantShownAvailable(v) ? '' : ' unavailable'}"
+                data-size="${v.id}" role="radio" aria-checked="${variant && v.id === variant.id}" ${variantShownAvailable(v) ? '' : 'disabled'}>
           ${escapeHtml(v.title)}
         </button>`).join('')}
     </div>` : '';
 
-  buyBox.innerHTML = `${sizesHtml}${pageActionButton(product)}`;
+  buyBox.innerHTML = `${stockBySizeHtml}${sizesHtml}${guideHtml}${pageActionButton(product)}`;
 }
 
 function renderProductPage() {
@@ -413,7 +459,6 @@ function renderProductPage() {
       <div id="priceStock"></div>
       <p class="product-description">${escapeHtml(product.description)}</p>
       <ul class="product-features">${featuresHtml}</ul>
-      ${isPoster(product) ? '' : `<details class="size-guide"><summary>Guide des tailles</summary>${sizeTableHtml()}</details>`}
       <div id="buyBox"></div>
     </div>
   </section>`;
@@ -598,7 +643,7 @@ function setupCartAndDrawer() {
     }
 
     if (checkout) {
-      if (!cart.length) return;
+      if (!cart.length || !isLaunched()) return;
       checkout.disabled = true;
       const originalText = checkout.textContent;
       checkout.textContent = 'Redirection en cours...';
@@ -638,6 +683,12 @@ async function shopifyFetch(query, variables = {}) {
 }
 
 async function createShopifyCheckout(cartItems) {
+  // Re-vérification de l'heure serveur juste avant de créer le paiement.
+  await syncServerTime();
+  if (!isLaunched()) {
+    alert("Le Drop n'est pas encore ouvert.");
+    return;
+  }
   const lines = cartItems.map(item => ({ merchandiseId: item.shopifyVariantId, quantity: item.quantity }));
 
   const mutation = `
@@ -845,17 +896,21 @@ function startLaunchCountdown() {
   let wasLaunched = isLaunched();
 
   const tick = () => {
-    const distance = LAUNCH_DATE - Date.now();
+    const current = now();
     let text;
 
-    if (distance < 0) {
+    if (current === null) {
+      text = '--j --h --m --s'; // heure serveur pas encore connue : on reste verrouillé
+    } else if (current >= LAUNCH_DATE) {
       text = "C'est ouvert !";
       if (!wasLaunched) {
         wasLaunched = true;
+        syncProductDataFromShopify(); // récupère tout de suite le stock fraîchement remis
         renderProductGrids();
         renderBuyBox();
       }
     } else {
+      const distance = LAUNCH_DATE - current;
       const days = Math.floor(distance / 86400000);
       const hours = Math.floor((distance % 86400000) / 3600000);
       const minutes = Math.floor((distance % 3600000) / 60000);
@@ -883,6 +938,31 @@ function injectSizeStyles() {
     .size-btn.unavailable { border-color: #ccc; color: #aaa; text-decoration: line-through; cursor: not-allowed; }
     .size-btn:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
     a.btn-add-cart { display: inline-block; text-align: center; text-decoration: none; }
+
+    /* Stock par taille (au-dessus des boutons de taille) */
+    .size-stock { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 20px 0 0; padding: 0; font-size: 0.78rem; color: #555; }
+    .size-stock li { display: flex; gap: 6px; align-items: baseline; }
+    .size-stock-size { font-weight: 600; color: #111; letter-spacing: .04em; }
+    .size-stock li.low .size-stock-qty { color: #c0392b; font-weight: 600; }
+    .size-stock li.out { color: #aaa; }
+    .size-stock li.out .size-stock-size { color: #aaa; text-decoration: line-through; }
+    .size-stock + .size-selector { margin-top: 12px; }
+
+    /* Guide des tailles (sous les tailles) — pages.css n'est pas chargé sur produit.html */
+    .size-guide { margin: 0 0 22px; border-top: 1px solid #e3e3e3; border-bottom: 1px solid #e3e3e3; }
+    .size-guide summary { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; cursor: pointer;
+      list-style: none; font-size: 0.75rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #111; }
+    .size-guide summary::-webkit-details-marker { display: none; }
+    .size-guide summary::after { content: '+'; font-size: 1.2rem; font-weight: 400; line-height: 1; }
+    .size-guide[open] summary::after { content: '−'; }
+    .size-guide .size-table-wrap { overflow-x: auto; margin: 0 0 6px; }
+    .size-guide .size-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .size-guide .size-table th { padding: 8px 10px; font-size: 0.68rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+      color: #888; border-bottom: 1px solid #111; text-align: center; background: none; }
+    .size-guide .size-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #333; }
+    .size-guide .size-table tr:last-child td { border-bottom: 0; }
+    .size-guide .size-table td:first-child { font-weight: 600; color: #111; }
+    .size-guide .size-note { margin: 0 0 14px; font-size: 0.72rem; color: #888; }
 
     /* Grille de l'index : cartes étroites et hautes (≈4 par ligne sur ordinateur).
        Largeur : change 320px. Hauteur : change 3 / 4.6 (plus le 2e chiffre est grand, plus c'est haut). */
@@ -913,6 +993,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setupGallery();
   setupFaq();
   startLaunchCountdown();
+  syncServerTime();
+  // Resynchronisation : retry rapide tant qu'on n'a pas l'heure, puis toutes les 5 min.
+  setInterval(() => { if (serverClock === null) syncServerTime(); }, 3000);
+  setInterval(syncServerTime, 300000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncServerTime(); });
   syncProductDataFromShopify();
 
   // Stock « en direct » : rafraîchi toutes les 60 s et au retour sur l'onglet.
