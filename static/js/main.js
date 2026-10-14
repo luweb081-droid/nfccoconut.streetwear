@@ -125,6 +125,13 @@ let serverClock = null; // { server: ms epoch serveur, mono: performance.now() a
 const now = () => serverClock ? serverClock.server + (performance.now() - serverClock.mono) : null;
 const isLaunched = () => serverClock !== null && now() >= LAUNCH_DATE;
 
+// ---- Affichage du stock (badges Sold Out, "Plus que X", stock par taille) ----
+// Avant le drop on le masque (le stock Shopify est à 0 pour verrouiller la vente).
+// Pour VÉRIFIER le rendu avant le drop : mets PREVIEW_STOCK à true, regarde, puis
+// remets false avant de mettre en ligne. Ça n'ouvre PAS la vente, seulement l'affichage.
+const PREVIEW_STOCK = false;
+const showStock = () => PREVIEW_STOCK || isLaunched();
+
 async function syncServerTime() {
   try {
     const t0 = performance.now();
@@ -181,8 +188,8 @@ const selectedVariantByProduct = {};
 const hasSizes = product => (product.variants || []).length > 1;
 // Avant le lancement on masque tout ce qui parle de stock (Sold Out, Épuisé, tailles barrées) :
 // le stock Shopify peut être à 0 pour verrouiller la vente, ça ne doit pas se voir.
-const isProductSoldOut = product => isLaunched() && !!product.variants?.length && product.variants.every(v => !v.available);
-const variantShownAvailable = v => !isLaunched() || v.available;
+const isProductSoldOut = product => showStock() && !!product.variants?.length && product.variants.every(v => !v.available);
+const variantShownAvailable = v => !showStock() || v.available;
 
 function getSelectedVariant(product) {
   const variants = product.variants || [];
@@ -193,7 +200,7 @@ function getSelectedVariant(product) {
 }
 
 function stockLabel(variant) {
-  if (!variant || !isLaunched()) return '';
+  if (!variant || !showStock()) return '';
   if (!variant.available) return 'Épuisé';
   if (typeof variant.qty === 'number' && variant.qty <= LOW_STOCK_PAGE) return `Plus que ${variant.qty} en stock`;
   return 'En stock';
@@ -231,7 +238,7 @@ function pageActionButton(product) {
 function productCard(product) {
   const discount = product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : null;
   const isSoldOut = isProductSoldOut(product);
-  const hasLowStock = isLaunched() && !isSoldOut && Number.isInteger(product.stockQty) && product.stockQty <= LOW_STOCK_CARD;
+  const hasLowStock = showStock() && !isSoldOut && Number.isInteger(product.stockQty) && product.stockQty <= LOW_STOCK_CARD;
   const hasSecondImage = product.images.length > 1;
 
   return `
@@ -369,7 +376,7 @@ function renderBuyBox() {
     ${stock ? `<p class="stock-info${variant && (!variant.available || (typeof variant.qty === 'number' && variant.qty <= LOW_STOCK_PAGE)) ? ' low' : ''}">${stock}</p>` : ''}`;
 
   // Stock de chaque taille, juste au-dessus des boutons (visible seulement après le lancement).
-  const stockBySizeHtml = hasSizes(product) && isLaunched() ? `
+  const stockBySizeHtml = hasSizes(product) && showStock() ? `
     <ul class="size-stock" aria-label="Stock par taille">
       ${product.variants.map(v => {
         const out = !v.available;
