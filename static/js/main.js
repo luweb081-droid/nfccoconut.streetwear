@@ -56,7 +56,7 @@ const PRODUCTS = [
     description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
     tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
     features: ['Coupe Oversized Boxy', '100% Coton lourd bio (300g/m²)', 'Imprimé localement en France'],
-    shopifyVariantId: "gid://shopify/ProductVariant/54297837306199"
+    shopifyVariantId: "gid://shopify/ProductVariant/55423906906455"
   },
   {
     id: 'tshirt-streetwear-5',
