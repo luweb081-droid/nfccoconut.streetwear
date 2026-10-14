@@ -18,7 +18,7 @@ const PRODUCTS = [
     id: 'tshirt-streetwear-1',
     name: 'T-shirt style Streetwear N°1',
     price: 39.90,
-    oldPrice: 59.90,
+    oldPrice: 39.90,
     images: ['static/images/tshirt2.png', 'static/images/tshirt2bis.png'],
     description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
     tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
@@ -29,7 +29,7 @@ const PRODUCTS = [
     id: 'tshirt-streetwear-2',
     name: 'T-Shirt style Streetwear N°2',
     price: 39.90,
-    oldPrice: 59.90,
+    oldPrice: 39.90,
     images: ['static/images/tshirt1.png', 'static/images/tshirt1bis.png', 'static/images/tshirt2bis2.png', 'static/images/tshirt2bis3.png'],
     description: 'Coupe boxy streetwear avec un patch NFC discret intégré au bas du vêtement.',
     tags: ['t-shirt', 'oversized', 'streetwear', 'nfc', 'vêtement'],
@@ -40,7 +40,7 @@ const PRODUCTS = [
     id: 'tshirt-streetwear-3',
     name: 'T-shirt style Streetwear N°3',
     price: 39.90,
-    oldPrice: 59.90,
+    oldPrice: 39.90,
     images: ['static/images/t-shirt3.png', 'static/images/tshirt3bis.png'],
     description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
     tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
@@ -51,7 +51,7 @@ const PRODUCTS = [
     id: 'tshirt-streetwear-4',
     name: 'T-shirt style Streetwear N°4',
     price: 39.90,
-    oldPrice: 59.90,
+    oldPrice: 39.90,
     images: ['static/images/tshirt4.png', 'static/images/tshirt4bis.png'],
     description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
     tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
@@ -62,7 +62,7 @@ const PRODUCTS = [
     id: 'tshirt-streetwear-5',
     name: 'T-shirt style Streetwear N°5',
     price: 39.90,
-    oldPrice: 59.90,
+    oldPrice: 39.90,
     images: ['static/images/tshirt4.png', 'static/images/tshirt4bis.png'],
     description: 'T-shirt en coton lourd bio, pensé pour une coupe streetwear confortable et durable.',
     tags: ['t-shirt', 'streetwear', 'coton', 'vêtement'],
@@ -129,7 +129,7 @@ const isLaunched = () => serverClock !== null && now() >= LAUNCH_DATE;
 // Avant le drop on le masque (le stock Shopify est à 0 pour verrouiller la vente).
 // Pour VÉRIFIER le rendu avant le drop : mets PREVIEW_STOCK à true, regarde, puis
 // remets false avant de mettre en ligne. Ça n'ouvre PAS la vente, seulement l'affichage.
-const PREVIEW_STOCK = true;
+const PREVIEW_STOCK = false;
 const showStock = () => PREVIEW_STOCK || isLaunched();
 
 async function syncServerTime() {
@@ -150,6 +150,7 @@ async function syncServerTime() {
 const LOW_STOCK_CARD = 10;
 const LOW_STOCK_PAGE = 5;
 
+const isDiscounted = (price, oldPrice) => typeof oldPrice === 'number' && oldPrice > price;
 const euro = value => `${value.toFixed(2).replace('.', ',')} €`;
 const escapeHtml = text => String(text).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 const productUrl = product => `produit.html?id=${encodeURIComponent(product.id)}`;
@@ -236,7 +237,8 @@ function pageActionButton(product) {
 
 // ================= CARTES =================
 function productCard(product) {
-  const discount = product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : null;
+  const onSale = isDiscounted(product.price, product.oldPrice);
+  const discount = onSale ? Math.round((1 - product.price / product.oldPrice) * 100) : null;
   const isSoldOut = isProductSoldOut(product);
   const hasLowStock = showStock() && !isSoldOut && Number.isInteger(product.stockQty) && product.stockQty <= LOW_STOCK_CARD;
   const hasSecondImage = product.images.length > 1;
@@ -254,7 +256,7 @@ function productCard(product) {
 
       <div class="product-price-container">
         <span class="product-price">${euro(product.price)}</span>
-        ${product.oldPrice ? `<span class="product-price-old">${euro(product.oldPrice)}</span><span class="badge-discount">-${discount}%</span>` : ''}
+        ${onSale ? `<span class="product-price-old">${euro(product.oldPrice)}</span><span class="badge-discount">-${discount}%</span>` : ''}
         ${hasLowStock ? `<span class="badge-low-stock">Plus que ${product.stockQty} en stock</span>` : ''}
       </div>
 
@@ -368,7 +370,8 @@ function renderBuyBox() {
 
   const variant = getSelectedVariant(product);
   const price = variant?.price ?? product.price;
-  const oldPrice = variant ? variant.oldPrice : product.oldPrice;
+  const oldPriceRaw = variant ? variant.oldPrice : product.oldPrice;
+  const oldPrice = isDiscounted(price, oldPriceRaw) ? oldPriceRaw : null;
   const stock = stockLabel(variant);
 
   priceStock.innerHTML = `
