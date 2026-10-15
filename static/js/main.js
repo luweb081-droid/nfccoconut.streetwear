@@ -159,13 +159,14 @@ const productUrl = product => `produit.html?id=${encodeURIComponent(product.id)}
 const isPoster = product => product.tags.includes('poster');
 
 // ================= GUIDE DES TAILLES =================
-// Mesures du vêtement posé à plat, en cm. [[Remplace par tes vraies mesures.]]
+// Mesures du vêtement posé à plat, en cm — Build Your Brand BY102 (Heavy Oversize Tee).
+// Largeur = demi-tour de poitrine (aisselle à aisselle), longueur = hauteur devant depuis le haut de l'épaule.
 // Source unique : utilisé sur la page guide-des-tailles.html et sur les fiches vêtements.
 const SIZE_CHART = [
-  { size: 'S',  width: 56, length: 70 },
-  { size: 'M',  width: 58, length: 72 },
-  { size: 'L',  width: 61, length: 74 },
-  { size: 'XL', width: 64, length: 76 }
+  { size: 'S',  width: 57, length: 76 },
+  { size: 'M',  width: 60, length: 78 },
+  { size: 'L',  width: 63, length: 80 },
+  { size: 'XL', width: 66, length: 82 }
 ];
 
 const sizeTableHtml = () => `
