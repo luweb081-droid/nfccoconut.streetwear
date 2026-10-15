@@ -33,7 +33,7 @@ const PRODUCTS = [
     images: ['static/images/tshirt1.png', 'static/images/tshirt1bis.png', 'static/images/tshirt2bis2.png', 'static/images/tshirt2bis3.png'],
     description: 'Coupe boxy streetwear avec un patch NFC discret intégré au bas du vêtement.',
     tags: ['t-shirt', 'oversized', 'streetwear', 'nfc', 'vêtement'],
-    features: ['Coupe Oversized Boxy', 'Patch NFC lavable intégré', 'Imprimé localement en France'],
+    features: ['Coupe Oversized', '240g/m² coton', 'Imprimé localement en France'],
     shopifyVariantId: "gid://shopify/ProductVariant/55211592810839"
   },
   {
